@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CompanyApi.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CompanyApi.Controllers
 {
@@ -7,6 +8,7 @@ namespace CompanyApi.Controllers
     public class CompanyController : ControllerBase
     {
         private static List<Company> companies = new List<Company>();
+        private static List<Employee> employees= new List<Employee>();
 
         [HttpPost]
         public ActionResult<Company> Create(CreateCompanyRequest request)
@@ -26,11 +28,11 @@ namespace CompanyApi.Controllers
             companies.Clear();
         }
 
-        [HttpGet]
-        public ActionResult<List<Company>> GetAll()
-        {
-            return Ok(companies);
-        }
+        //[HttpGet]
+        //public ActionResult<List<Company>> GetAll()
+        //{
+        //    return Ok(companies);
+        //}
 
         [HttpGet("{id}")]
         public ActionResult<Company> GetById(string id)
@@ -46,17 +48,22 @@ namespace CompanyApi.Controllers
             }
         }
 
-        [HttpGet("{pageSize}&{pageIndex}")]
-        public ActionResult<List<Company>> GetPageBySizeIndex(int pageSize, int pageIndex)
+        [HttpGet]
+        public ActionResult<List<Company>> GetPageBySizeIndex([FromQuery] int? pageSize, [FromQuery] int? pageIndex)
         {
-            int start = pageSize * pageIndex;
+            if (pageIndex == null || pageSize == null)
+            {
+                return Ok(companies);
+            }
+
+            int start = (int)(pageSize * pageIndex);
             if (start + pageSize > companies.Count)
             {
                 return Ok(new());
             }
             else
             {
-                return Ok(companies.Skip(start).Take(pageSize).ToList());
+                return Ok(companies.Skip(start).Take((int)pageSize).ToList());
             }
         }
 
@@ -72,6 +79,32 @@ namespace CompanyApi.Controllers
             {
                 company.Name = companyToUpdate.Name;
                 return NoContent();
+            }
+        }
+
+        [HttpPost("employees")]
+        public ActionResult<Employee> CreateEmployee([FromBody] EmployeeCreate employeeCreate)
+        {
+            var company = companies.Find(company => company.Id.Equals(employeeCreate.CompanyId));
+            if (company == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                var _employee = employees.Find(e => e.Name == employeeCreate.Name);
+                if (_employee != null) {
+                    return BadRequest();
+                }
+                var employee = new Employee()
+                {
+                    Name = employeeCreate.Name,
+                    Position = employeeCreate.Position,
+                    CompanyId = employeeCreate.CompanyId
+                };
+                employees.Add(employee);
+
+                return Created("", employee);
             }
         }
     }

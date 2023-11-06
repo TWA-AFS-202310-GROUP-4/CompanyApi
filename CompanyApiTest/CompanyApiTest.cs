@@ -1,4 +1,5 @@
 using CompanyApi;
+using CompanyApi.DTOs;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using System.Net;
@@ -73,10 +74,10 @@ namespace CompanyApiTest
         public async Task Should_return_200_when_get_all_given_nothing()
         {
             await ClearDataAsync();
-            Company companyGiven = new Company("BlueSky Digital Media");
+            var companyGiven = new CreateCompanyRequest() { Name = "BlueSky Digital Media" };
           
             // When
-            var _hm = await httpClient.PostAsync("/api/companies", SerializeObjectToContent(companyGiven));
+            var _hm = await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
             var cp = await _hm.Content.ReadFromJsonAsync<Company>();
 
             var httpMessage = await httpClient.GetAsync("/api/companies");
@@ -120,7 +121,7 @@ namespace CompanyApiTest
         public async Task Should_return_companies_with_status_when_get_page_given_size_index()
         {
             await ClearDataAsync();
-            var companyGiven = new CreateCompanyRequest { Name = "1" };
+            var companyGiven = new CreateCompanyRequest() { Name = "1" };
             var companyGiven2 = new CreateCompanyRequest() { Name = "2" };
             var companyGiven3 = new CreateCompanyRequest() { Name = "3" };
             var companyGiven4 = new CreateCompanyRequest() { Name = "4" };
@@ -134,7 +135,7 @@ namespace CompanyApiTest
 
             var pageSize = 2;
             var pageIndex = 1;
-            var response = await httpClient.GetAsync($"/api/companies/{pageSize}&{pageIndex}");
+            var response = await httpClient.GetAsync($"/api/companies?pagesize={pageSize}&pageindex={pageIndex}");
             var cs = await response.Content.ReadFromJsonAsync<List<Company>>();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal(new List<Company>() { c3Exp, c4Exp }, cs);
@@ -169,6 +170,63 @@ namespace CompanyApiTest
 
             Assert.Equal(HttpStatusCode.NoContent, updateReponse.StatusCode);
             Assert.Equal(middleCompany, newCompany);
+        }
+
+        [Fact]
+        public async Task Should_create_employee_with_201_when_create_given_employee()
+        {
+            await ClearDataAsync();
+
+            var company = new CreateCompanyRequest() { Name = "new" };
+            var response = await httpClient.PostAsJsonAsync("/api/companies", company);
+            var newCompany = await response.Content.ReadFromJsonAsync<Company>();
+            var employee = new EmployeeCreate()
+            {
+                Name = "new employee",
+                Position = "",
+                CompanyId = newCompany.Id
+            };
+            var eResponse = await httpClient.PostAsJsonAsync($"/api/companies/employees", employee);
+            var newEmployee = await eResponse.Content.ReadFromJsonAsync<Employee>();
+
+            Assert.Equal(HttpStatusCode.Created,eResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_create_employee_with_404_when_create_given_employee_company_not_existed()
+        {
+            await ClearDataAsync();
+
+            var employee = new EmployeeCreate()
+            {
+                Name = "new employee",
+                Position = "",
+                CompanyId = "someid"
+            };
+            var eResponse = await httpClient.PostAsJsonAsync($"/api/companies/employees", employee);
+
+            Assert.Equal(HttpStatusCode.NotFound, eResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_create_employee_with_400_when_create_given_employee_existed()
+        {
+            await ClearDataAsync();
+
+            var company = new CreateCompanyRequest() { Name = "new" };
+            var response = await httpClient.PostAsJsonAsync("/api/companies", company);
+            var newCompany = await response.Content.ReadFromJsonAsync<Company>();
+            var employee = new EmployeeCreate()
+            {
+                Name = "new employee",
+                Position = "",
+                CompanyId = newCompany.Id
+            };
+            await httpClient.PostAsJsonAsync($"/api/companies/employees", employee);
+            var eResponse = await httpClient.PostAsJsonAsync($"/api/companies/employees", employee);
+            var newEmployee = await eResponse.Content.ReadFromJsonAsync<Employee>();
+
+            Assert.Equal(HttpStatusCode.BadRequest, eResponse.StatusCode);
         }
 
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)

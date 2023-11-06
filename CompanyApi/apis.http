@@ -5,7 +5,7 @@
 
 # Company APIS
 ## POST /api/Companies
-## GET /api/Companies
+# ## GET /api/Companies
 ## GET /api/Companies/{companyID}
 ## GET /api/Companies?pageSize=2&pageIndex=3
 ## PUT /api/Companies/{companyID}
@@ -67,10 +67,12 @@ Content-Type: application/json; charset=utf-8
 {
   "name": "Jingbo",
   "position": "software engineer"
+  "companyid": "..."
 }
 ### Response: 
 ### Case1: Success, Created 201 with employee
 ### Case2: Employee name existing, return 400 Bad request
+### Case3: Company not found, Not Found 404
 
 ######################################################################################
 
@@ -97,6 +99,12 @@ Content-Type: application/json; charset=utf-8
 ## AC9 update an employee under a company
 PUT https://{{hostname}}:{{port}}/api/Companies/{companyID}/employees/{employeeID}
 Content-Type: application/json; charset=utf-8
+
+{
+  "name": "..",
+  "position": "...",
+  "companyid": "...",
+}
 
 ### Response: 
 ### Case1: Success, 200 with list of employees
