@@ -1,4 +1,4 @@
-using CompanyApi;
+using CompanyApi.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using System.Net;
@@ -168,6 +168,35 @@ namespace CompanyApiTest
         private async Task ClearDataAsync()
         {
             await httpClient.DeleteAsync("/api/companies");
+        }
+
+        [Fact]
+        public async Task Should_return_201_when_create_given_employee()
+        {
+            await ClearDataAsync();
+
+            var company = new CreateCompanyRequest("google");
+            var _ = await httpClient.PostAsJsonAsync("/api/companies", company);
+            var employee = new CreateEmployeeRequest("cr", "google", "CEO");
+            var createEmployeeResponse = await httpClient.PostAsJsonAsync($"/api/companies/employees", employee);
+
+            Assert.Equal(HttpStatusCode.Created, createEmployeeResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_return_204_when_delete_given_employee_id()
+        {
+            await ClearDataAsync();
+
+            var company = new CreateCompanyRequest("google");
+            var _ = await httpClient.PostAsJsonAsync("/api/companies", company);
+            var employee = new CreateEmployeeRequest("cr", "google", "CEO");
+            var createEmployeeResponse = await httpClient.PostAsJsonAsync($"/api/companies/employees", employee);
+            var responseInfo = await createEmployeeResponse.Content.ReadFromJsonAsync<Employee>();
+
+            var deleteResponse = await httpClient.DeleteAsync($"/api/companies/employees/{responseInfo!.Id}");
+
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
         }
     }
 }

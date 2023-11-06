@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using CompanyApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CompanyApi.Controllers
@@ -8,6 +9,8 @@ namespace CompanyApi.Controllers
     public class CompanyController : ControllerBase
     {
         private static List<Company> companies = new List<Company>();
+        private static List<Employee> employees = new List<Employee>();
+
 
         [HttpGet]
         public ActionResult<List<Company>> GetPartialAll([FromQuery] int? pageSize, [FromQuery] int? pageIndex = 1)
@@ -61,10 +64,51 @@ namespace CompanyApi.Controllers
             return StatusCode(StatusCodes.Status201Created, companyCreated);
         }
 
+        [HttpPost("employees")]
+        public ActionResult<Employee> CreateEmployee([FromBody] CreateEmployeeRequest employee)
+        {
+            var company = companies.FirstOrDefault(cp => cp.Name.Equals(employee.CompanyName));
+            if (company == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                var searchRet = employees.Find(ep => ep.Name == employee.Name);
+                if (searchRet != null)
+                {
+                    return BadRequest();
+                }
+                var employeeNew = new Employee()
+                {
+                    Name = employee.Name,
+                    Title = employee.Title,
+                    CompanyName = employee.CompanyName,
+                };
+                employees.Add(employeeNew);
+
+                return Created("", employeeNew);
+            }
+        }
+
+        [HttpDelete("employees/{id}")]
+        public ActionResult DeleteEmployeeById(string id)
+        {
+            var searchRet = employees.FirstOrDefault(ep => ep.Id == id);
+            if (searchRet == null)
+            {
+                return NotFound();
+            }
+            employees.Remove(searchRet);
+
+            return NoContent();
+        }
+
         [HttpDelete]
         public void ClearData()
         { 
             companies.Clear();
+            employees.Clear();
         }
     }
 }
