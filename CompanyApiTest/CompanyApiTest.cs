@@ -143,5 +143,43 @@ namespace CompanyApiTest
             //Then
             Assert.Equal(HttpStatusCode.NoContent, getByIdResponseMessage.StatusCode);
         }
+
+        [Theory]
+        [InlineData(8,2, new string[] { "company1", "company2", "company3", "company4", "company5", "company6", "company7", "company8", "company9", "company10" },2)]
+        [InlineData(2,2, new string[] { "company1", "company2", "company3", "company4", "company5", "company6", "company7", "company8", "company9", "company10" },2)]
+        public async Task Should_get_companies_of_pageIndex_when_get_companies_given_pagesize_and_pageindex(int pageSize, int pageIndex, string[] companiesname,int expectedLength)
+        {
+            //given
+            await ClearDataAsync();
+            foreach (var name in companiesname)
+            {
+                await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest { Name = name });
+            }
+            //when
+            HttpResponseMessage responseMessage = await httpClient.GetAsync($"/api/companies?pageSize={pageSize}&pageIndex={pageIndex}");
+            List<Company>? companies = await responseMessage.Content.ReadFromJsonAsync<List<Company>>();
+
+            //then
+            Assert.NotNull(companies);
+            Assert.Equal(expectedLength,companies.Count);
+        }
+
+        [Theory]
+        [InlineData(20, 2, new string[] { "company1", "company2", "company3", "company4", "company5", "company6", "company7", "company8", "company9", "company10" })]
+        [InlineData(6, 4, new string[] { "company1", "company2", "company3", "company4", "company5", "company6", "company7", "company8", "company9", "company10" })]
+        public async Task Should_get_bad_request_of_pageIndex_when_get_companies_given_invalid_pagesize_and_pageindex(int pageSize, int pageIndex, string[] companiesname)
+        {
+            //given
+            await ClearDataAsync();
+            foreach (var name in companiesname)
+            {
+                await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest { Name = name });
+            }
+            //when
+            HttpResponseMessage responseMessage = await httpClient.GetAsync($"/api/companies?pageSize={pageSize}&pageIndex={pageIndex}");
+
+            //then
+            Assert.Equal(HttpStatusCode.BadRequest,responseMessage.StatusCode);
+        }
     }
 }
