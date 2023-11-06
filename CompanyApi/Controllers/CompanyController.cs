@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Numerics;
-using System.Reflection.Metadata.Ecma335;
 
 namespace CompanyApi.Controllers
 {
@@ -88,7 +86,7 @@ namespace CompanyApi.Controllers
         }
 
 
-        [HttpPut("{companyId}/{employeeId}")]
+        [HttpDelete("{companyId}/employees/{employeeId}")]
         public ActionResult<Company> DeleteAnEmployeeOfAnCompany([FromRoute] string? companyId, [FromRoute] string? employeeId)
         {
             int companyIndex = companies.FindIndex(company => company.Id.Equals(companyId));

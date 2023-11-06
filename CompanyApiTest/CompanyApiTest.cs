@@ -1,10 +1,7 @@
 using CompanyApi;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 
@@ -161,7 +158,7 @@ public class CompanyApiTest
         Employee employee = new Employee("Bob", "1");
         await httpClient.PutAsJsonAsync("/api/companies/" + id, employee);
         //When
-        HttpResponseMessage responseMessage = await httpClient.DeleteAsync($"/api/companies/employees/"+ id + "/1");
+        HttpResponseMessage responseMessage = await httpClient.DeleteAsync($"/api/companies/{id}/employees/1");
 
         //Then
         Assert.Equal(HttpStatusCode.NoContent, responseMessage.StatusCode);
