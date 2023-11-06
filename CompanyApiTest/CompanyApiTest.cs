@@ -2,6 +2,7 @@ using CompanyApi;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 
@@ -75,7 +76,6 @@ namespace CompanyApiTest
             //Given
             await ClearDataAsync();
             Company companyGiven1 = new Company("BlueSky Digital Media");
-            //Company companyGiven2 = new Company("Google");
             await httpClient.PostAsJsonAsync("/api/companies", companyGiven1);
             //When
             HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies");
@@ -90,7 +90,36 @@ namespace CompanyApiTest
 
         }
         //public async Task Should
+        [Fact]
+        public async Task Should_return_the_company_when_get_by_id_given_the_company_existed()
+        {
+            //Given
+            await ClearDataAsync();
+            Company companyGiven1 = new Company("BlueSky Digital Media");
+            HttpResponseMessage httpPostReturnedMessage = await httpClient.PostAsJsonAsync("/api/companies", companyGiven1);
+            string companiesReturned = await httpPostReturnedMessage.Content.ReadAsStringAsync();
+            Company? company = JsonConvert.DeserializeObject<Company>(companiesReturned);
 
+            //When
+            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies/" + company.Id);
+
+            //Then
+            string companiesGetReturned = await httpResponseMessage.Content.ReadAsStringAsync();
+            Company? companyGetReturned = JsonConvert.DeserializeObject<Company>(companiesGetReturned);
+            Assert.Equal(company.Name, companyGetReturned.Name);
+        }
+
+        public async Task Should_return_not_found_when_get_by_id_given_the_company_not_existed()
+        {
+            //Given
+            await ClearDataAsync();
+
+            //When
+            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies/" + "123");
+
+            //Then
+            Assert.Equal(httpResponseMessage.StatusCode, HttpStatusCode.NotFound);
+        }
 
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
