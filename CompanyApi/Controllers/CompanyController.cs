@@ -25,5 +25,11 @@ namespace CompanyApi.Controllers
         { 
             companies.Clear();
         }
+
+        [HttpGet]
+        public ActionResult<List<Company>> Get()
+        {
+            return StatusCode(StatusCodes.Status200OK, companies);
+        }
     }
 }
