@@ -110,5 +110,17 @@ namespace CompanyApi.Controllers
                 return StatusCode(StatusCodes.Status404NotFound);
             }
         }
+
+        [HttpGet("/company/{id}")]
+        public ActionResult<Company> GetEmployeeList(string id)
+        {
+            var quiredResult = companies.FirstOrDefault(company => company.Id.Equals(id));
+            if (quiredResult != null)
+            {
+                return StatusCode(StatusCodes.Status200OK, quiredResult.Employees);
+            }
+
+            return NotFound();
+        }
     }
 }

@@ -164,6 +164,25 @@ public class CompanyApiTest
         Assert.Equal(HttpStatusCode.NoContent, responseMessage.StatusCode);
     }
 
+    [Fact]
+    public async Task Should_show_employeeList_when_GetEmployeeList_given_an_companyId()
+    {
+        //Given
+        await ClearDataAsync();
+        Company companyGiven1 = new Company("BlueSky Digital Media");
+        var httpMessage = await httpClient.PostAsync("/api/companies", SerializeObjectToContent(companyGiven1));
+        var createdCompany = DeserializeTo<Company>(httpMessage).Result;
+        string id = createdCompany.Id;
+
+        Employee employee = new Employee("Bob", "1");
+        await httpClient.PutAsJsonAsync("/api/companies/" + id, employee);
+        //When
+        HttpResponseMessage responseMessage = await httpClient.GetAsync($"/api/companies/company/{id}");
+        var queriedCompanies = DeserializeTo<List<Company>>(responseMessage).Result;
+        //Then
+        Assert.Equal("Bob", queriedCompanies[0].Name);
+    }
+
     private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
     {
         string response = await httpResponseMessage.Content.ReadAsStringAsync();
