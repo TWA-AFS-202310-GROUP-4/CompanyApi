@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Xml.Linq;
 using CompanyApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -74,17 +75,13 @@ namespace CompanyApi.Controllers
             }
             else
             {
-                var searchRet = employees.Find(ep => ep.Name == employee.Name);
+                var searchRet = employees.FirstOrDefault(ep => ep.Name == employee.Name);
                 if (searchRet != null)
                 {
                     return BadRequest();
                 }
-                var employeeNew = new Employee()
-                {
-                    Name = employee.Name,
-                    Title = employee.Title,
-                    CompanyName = employee.CompanyName,
-                };
+                var employeeNew = new Employee(employee.Name, employee.Title, employee.CompanyName);
+
                 employees.Add(employeeNew);
 
                 return Created("", employeeNew);
