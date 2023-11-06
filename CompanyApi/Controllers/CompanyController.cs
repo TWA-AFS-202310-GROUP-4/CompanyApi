@@ -31,5 +31,17 @@ namespace CompanyApi.Controllers
         {
             return StatusCode(StatusCodes.Status200OK, companies);
         }
+
+        [HttpGet("{id}")]
+        public ActionResult<Company> GetCompanyById(string id)
+        {
+            var quiredResult = companies.FirstOrDefault(company => company.Id.Equals(id));
+            if (quiredResult != null)
+            {
+                return StatusCode(StatusCodes.Status200OK, quiredResult);
+            }
+
+            return NotFound();
+        }
     }
 }

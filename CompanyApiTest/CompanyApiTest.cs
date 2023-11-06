@@ -89,6 +89,26 @@ public class CompanyApiTest
         Assert.Equal(companyNameInputList, companyOutputList);
     }
 
+
+    [Fact]
+    public async Task Should_return_company_name_when_GetCompanyById_given_a_company_id()
+    {
+        //Given
+        await ClearDataAsync();
+        Company companyGiven1 = new Company("BlueSky Digital Media");
+        var httpMessage = await httpClient.PostAsync("/api/companies", SerializeObjectToContent(companyGiven1));
+        var createdCompany = DeserializeTo<Company>(httpMessage).Result;
+        string id = createdCompany.Id;
+
+        //When
+        HttpResponseMessage getCompanyByIdResponseMessage = await httpClient.GetAsync("/api/companies/" + id);
+        var queriedCompany = DeserializeTo<Company>(getCompanyByIdResponseMessage).Result;
+
+        //Then
+        Assert.Equal(HttpStatusCode.OK, getCompanyByIdResponseMessage.StatusCode);
+        Assert.Equal(createdCompany.Name, queriedCompany.Name);
+    }
+
     private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
     {
         string response = await httpResponseMessage.Content.ReadAsStringAsync();
