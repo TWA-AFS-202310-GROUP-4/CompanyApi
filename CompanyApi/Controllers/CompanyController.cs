@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.CookiePolicy;
+﻿using CompanyApi.Request;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Linq;
 
 namespace CompanyApi.Controllers
 {
@@ -67,9 +65,8 @@ namespace CompanyApi.Controllers
             {
                 return NoContent();
             }
-            companies[index].Name= updateCompanyRequest.Name;
+            companies[index].Name = updateCompanyRequest.Name;
             return Ok(companies[index]);
         }
-
     }
 }
