@@ -136,5 +136,18 @@ namespace CompanyApiTest
             Assert.Equal("Company2", companys[0].Name);
 
         }
+        [Fact]
+        public async Task Should_return_update_company_with_status_201_when_update_cpmoany_name_by_id()
+        {
+            await ClearDataAsync();
+            Company companyGiven = new Company("Google");
+            var response =  await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
+            var responsecompany = await  response.Content.ReadFromJsonAsync<Company>();
+            var updatecompany = new Company("google");
+            var updateResponse =  await httpClient.PutAsJsonAsync($"api/companies/{responsecompany.Id}", updatecompany);
+            
+
+            Assert.Equal(HttpStatusCode.NoContent, updateResponse.StatusCode);
+        }
     }
 }

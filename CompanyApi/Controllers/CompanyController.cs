@@ -6,15 +6,8 @@ namespace CompanyApi.Controllers
     [ApiController]
     public class CompanyController : ControllerBase
     {
-        private static List<Company> companies = new List<Company>() 
-        {
-            new Company("Google1"),
-            new Company("Google2"),
-            new Company("Google3"),
-            new Company("Google4"),
-            new Company("Google5"),
-            new Company("Google6"),
-        };
+        private static List<Company> companies = new List<Company>();
+     
 
         [HttpPost]
         public ActionResult<Company> Create(CreateCompanyRequest request)
@@ -39,7 +32,7 @@ namespace CompanyApi.Controllers
 
         public ActionResult<Company> Get(string id)
         {
-            Company company = companies.Find(company =>company.Id == id);
+            Company company = companies.Find(company => company.Id == id);
             if (company != null)
             {
                 return StatusCode(StatusCodes.Status200OK, company);
@@ -53,8 +46,18 @@ namespace CompanyApi.Controllers
         [HttpGet("page")]
         public ActionResult<List<Company>> GetPage(int pageSize, int pageIndex)
         {
-           var responseCompany = companies.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
-           return Ok(responseCompany);
+            var responseCompany = companies.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+            return Ok(responseCompany);
+        }
+
+        [HttpPut("{id}")]
+        public ActionResult<Company> Put(string id, [FromBody]Company updateCompany)
+        {
+            var company = companies.FirstOrDefault(company => company.Id == id);
+            if (company == null)
+                return NotFound();
+            company.Name = updateCompany.Name;
+            return NoContent();
         }
 
         [HttpDelete]
