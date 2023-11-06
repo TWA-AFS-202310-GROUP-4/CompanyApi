@@ -60,7 +60,7 @@ namespace CompanyApi.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpPut("{id}")]
         public ActionResult UpdateById(string id, [FromBody] CreateCompanyRequest companyToUpdate)
         {
             var company = companies.Find(company => company.Id == id);

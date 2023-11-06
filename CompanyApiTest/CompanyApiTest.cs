@@ -141,6 +141,36 @@ namespace CompanyApiTest
 
         }
 
+        [Fact]
+        public async Task Should_return_404_when_update_given_not_exist_id()
+        {
+            await ClearDataAsync();
+
+            var companyToUpdate = new CreateCompanyRequest() { Name = "update" };
+            var httpMessage = await httpClient.PutAsync($"/api/companies/wrongid", SerializeObjectToContent(companyToUpdate));
+
+            Assert.Equal(HttpStatusCode.NotFound, httpMessage.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_update_company_with_204_when_update_given_id()
+        {
+            await ClearDataAsync();
+
+            var startCompany = new CreateCompanyRequest() { Name = "old" };
+            var response = await httpClient.PostAsync("/api/companies", SerializeObjectToContent(startCompany));
+            var middleCompany = await response.Content.ReadFromJsonAsync<Company>();
+            startCompany.Name = "new";
+            middleCompany.Name = "new";
+
+            var updateReponse = await httpClient.PutAsJsonAsync($"/api/companies/{middleCompany.Id}" , startCompany);
+            var getResponse = await httpClient.GetAsync($"/api/companies/{middleCompany.Id}");
+            var newCompany = await getResponse.Content.ReadFromJsonAsync<Company>();
+
+            Assert.Equal(HttpStatusCode.NoContent, updateReponse.StatusCode);
+            Assert.Equal(middleCompany, newCompany);
+        }
+
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
             string response = await httpResponseMessage.Content.ReadAsStringAsync();
