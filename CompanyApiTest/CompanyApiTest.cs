@@ -1,4 +1,5 @@
 using CompanyApi;
+using CompanyApi.DTO;
 using CompanyApi.Request;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -92,8 +93,8 @@ namespace CompanyApiTest
         }
 
         [Theory]
-        [InlineData(2,"acompany", "bcomoany")]
-        public async Task Should_return_all_companies_when_get_all_companies_given_nothing(int expectedLength,params string[] companyname)
+        [InlineData(2, "acompany", "bcomoany")]
+        public async Task Should_return_all_companies_when_get_all_companies_given_nothing(int expectedLength, params string[] companyname)
         {
             //Given
             await ClearDataAsync();
@@ -115,15 +116,15 @@ namespace CompanyApiTest
         public async Task Should_return_the_correspond_company_when_get_company_by_id_give_the_company_id(string companyname)
         {
             //Given
-            await ClearDataAsync();          
-            HttpResponseMessage httpResponseMessage=await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest { Name = companyname });
-            var existedCompany= await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+            await ClearDataAsync();
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest { Name = companyname });
+            var existedCompany = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
             var id = existedCompany.Id;
 
             //When
             var url = $"/api/companies/{id}";
             HttpResponseMessage getByIdResponseMessage = await httpClient.GetAsync(url);
-            Company? company =await getByIdResponseMessage.Content.ReadFromJsonAsync<Company>();
+            Company? company = await getByIdResponseMessage.Content.ReadFromJsonAsync<Company>();
 
             //Then
             Assert.NotNull(company);
@@ -148,9 +149,9 @@ namespace CompanyApiTest
         }
 
         [Theory]
-        [InlineData(8,2, new string[] { "company1", "company2", "company3", "company4", "company5", "company6", "company7", "company8", "company9", "company10" },2)]
-        [InlineData(2,2, new string[] { "company1", "company2", "company3", "company4", "company5", "company6", "company7", "company8", "company9", "company10" },2)]
-        public async Task Should_get_companies_of_pageIndex_when_get_companies_given_pagesize_and_pageindex(int pageSize, int pageIndex, string[] companiesname,int expectedLength)
+        [InlineData(8, 2, new string[] { "company1", "company2", "company3", "company4", "company5", "company6", "company7", "company8", "company9", "company10" }, 2)]
+        [InlineData(2, 2, new string[] { "company1", "company2", "company3", "company4", "company5", "company6", "company7", "company8", "company9", "company10" }, 2)]
+        public async Task Should_get_companies_of_pageIndex_when_get_companies_given_pagesize_and_pageindex(int pageSize, int pageIndex, string[] companiesname, int expectedLength)
         {
             //given
             await ClearDataAsync();
@@ -164,7 +165,7 @@ namespace CompanyApiTest
 
             //then
             Assert.NotNull(companies);
-            Assert.Equal(expectedLength,companies.Count);
+            Assert.Equal(expectedLength, companies.Count);
         }
 
         [Theory]
@@ -182,12 +183,12 @@ namespace CompanyApiTest
             HttpResponseMessage responseMessage = await httpClient.GetAsync($"/api/companies?pageSize={pageSize}&pageIndex={pageIndex}");
 
             //then
-            Assert.Equal(HttpStatusCode.BadRequest,responseMessage.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, responseMessage.StatusCode);
         }
 
         [Theory]
-        [InlineData("acompany","a-update company")]
-        public async Task Should_get_updated_company_name_when_update_company_given_existed_company_id(string companyName,string updateCompanyname)
+        [InlineData("acompany", "a-update company")]
+        public async Task Should_get_updated_company_name_when_update_company_given_existed_company_id(string companyName, string updateCompanyname)
         {
             //given
             await ClearDataAsync();
@@ -205,7 +206,7 @@ namespace CompanyApiTest
         }
 
         [Theory]
-        [InlineData("acompany","a-update company")]
+        [InlineData("acompany", "a-update company")]
         public async Task Should_get_no_content_when_update_company_given_existed_company_id(string companyName, string updateCompanyname)
         {
             //given
@@ -218,8 +219,44 @@ namespace CompanyApiTest
             HttpResponseMessage updateHttpResponseMessage = await httpClient.PutAsJsonAsync($"/api/companies/{fakeId}", updateCompanyRequest);
 
             //then
-           Assert.Equal(HttpStatusCode.NoContent,updateHttpResponseMessage.StatusCode);
+            Assert.Equal(HttpStatusCode.NoContent, updateHttpResponseMessage.StatusCode);
         }
 
+        [Theory]
+        [InlineData("Alice")]
+        public async Task Should_return_created_employee_with_status_201_when_create_employee_given_a_employee_name_and_companyId(string employeeName)
+        {
+            // Given
+            await ClearDataAsync();
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest
+            {
+                Name = "BlueSky Digital Media"
+            });
+            Company? company = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+            var companyId = company.Id;
+
+            //When
+            HttpResponseMessage createEmployeeHttpResponseMessage = await httpClient.PostAsJsonAsync($"/api/companies/{companyId}/employees", new CreateEmployeeRequest(employeeName));
+            Employee? employee = await createEmployeeHttpResponseMessage.Content.ReadFromJsonAsync<Employee>();
+
+            //Then
+            Assert.NotNull(employee);
+            Assert.Equal(companyId, employee.CompanyId);
+        }
+
+        [Theory]
+        [InlineData("Alice")]
+        public async Task Should_return_not_found_when_create_employee_given_a_employee_name_but_fake_companyId(string employeeName)
+        {
+            // Given
+            await ClearDataAsync();
+            var fakeId = Guid.NewGuid().ToString();
+
+            //When
+            HttpResponseMessage createEmployeeHttpResponseMessage = await httpClient.PostAsJsonAsync($"/api/companies/{fakeId}/employees", new CreateEmployeeRequest(employeeName));
+
+            //Then
+            Assert.Equal(HttpStatusCode.NotFound, createEmployeeHttpResponseMessage.StatusCode);
+        }
     }
 }

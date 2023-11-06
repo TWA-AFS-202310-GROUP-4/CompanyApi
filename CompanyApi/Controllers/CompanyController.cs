@@ -1,5 +1,10 @@
-﻿using CompanyApi.Request;
+﻿using CompanyApi.DTO;
+using CompanyApi.Request;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Linq;
 
 namespace CompanyApi.Controllers
 {
@@ -65,8 +70,25 @@ namespace CompanyApi.Controllers
             {
                 return NoContent();
             }
-            companies[index].Name = updateCompanyRequest.Name;
+            companies[index].Name= updateCompanyRequest.Name;
             return Ok(companies[index]);
+        }
+
+        [HttpPost("{id}/employees")]
+        public ActionResult<Employee> CreateNewEmplpyee(string id,[FromBody] CreateEmployeeRequest createEmployeeRequest)
+        {
+            var companyIndex=companies.FindIndex((company) => company.Id == id);
+            if (companyIndex == -1)
+            {
+                return NotFound();
+            }
+            string emloyeeName = createEmployeeRequest.Name;
+            Employee newEmployee = new (id,emloyeeName);
+
+            companies[companyIndex].EmployeesList.Add(newEmployee);
+
+            return Created("",newEmployee);
+           
         }
     }
 }
