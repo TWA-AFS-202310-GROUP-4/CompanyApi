@@ -2,9 +2,9 @@
 
 public class Employee
 {
-    public Employee(string name)
+    public Employee(string name, string id)
     {
-        Id = Guid.NewGuid().ToString();
+        Id = id;
         Name = name;
     }
 

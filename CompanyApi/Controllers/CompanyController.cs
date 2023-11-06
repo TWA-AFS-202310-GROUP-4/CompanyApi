@@ -28,12 +28,6 @@ namespace CompanyApi.Controllers
             companies.Clear();
         }
 
-        [HttpGet]
-        public ActionResult<List<Company>> GetAllCompanies()
-        {
-            return StatusCode(StatusCodes.Status200OK, companies);
-        }
-
         [HttpGet("{id}")]
         public ActionResult<Company> GetCompanyById(string id)
         {
@@ -46,13 +40,18 @@ namespace CompanyApi.Controllers
             return NotFound();
         }
 
-        [HttpGet("{pageSize}/{pageNumber}")]
+        [HttpGet]
         public ActionResult<List<Company>> GetCompaniesWithPagination([FromQuery] string? pageSize, [FromQuery] string? pageNumber)
         {
             int pageSizeInt = Int32.Parse(pageSize);
             int pageNumberInt = Int32.Parse(pageNumber);
             int startIndex = pageSizeInt * (pageNumberInt - 1);
-            var queriedCompanies = companies.GetRange(startIndex, startIndex + pageSizeInt - 1);
+            List<Company> queriedCompanies = new List<Company>();
+            for (int i = startIndex; i < startIndex + pageSizeInt; i++)
+            {
+                queriedCompanies.Add(companies[i]);
+            }
+            
             
             return StatusCode(StatusCodes.Status200OK, queriedCompanies);
         }
@@ -86,8 +85,32 @@ namespace CompanyApi.Controllers
             {
                 return StatusCode(StatusCodes.Status404NotFound);
             }
+        }
 
-            
+
+        [HttpPut("{companyId}/{employeeId}")]
+        public ActionResult<Company> DeleteAnEmployeeOfAnCompany([FromRoute] string? companyId, [FromRoute] string? employeeId)
+        {
+            int companyIndex = companies.FindIndex(company => company.Id.Equals(companyId));
+            if (companyIndex >= 0)
+            {
+                var employees = companies[companyIndex].Employees;
+                var employeeIndex = employees.FindIndex(Employee => Employee.Id.Equals(employeeId));
+                if (employeeIndex >= 0)
+                {
+                    employees.RemoveAt(companyIndex);
+                    return StatusCode(StatusCodes.Status204NoContent);
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status404NotFound);
+                }
+                
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
         }
     }
 }
