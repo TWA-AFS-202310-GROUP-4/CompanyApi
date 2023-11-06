@@ -76,7 +76,7 @@ Content-Type: application/json; charset=utf-8
 ######################################################################################
 
 ## AC7 Delete employee
-DELETE  https://{{hostname}}:{{port}}/api/Companies/{companyID}/{EmployeeId}
+DELETE  https://{{hostname}}:{{port}}/api/Companies/{companyID}/employees/{EmployeeId}
 
 ## Response:
 ### Case1:  Success 204 NO CONTENT
