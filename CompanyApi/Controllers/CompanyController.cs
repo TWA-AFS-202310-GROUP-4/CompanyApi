@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
+using System.Linq;
 
 namespace CompanyApi.Controllers
 {
@@ -91,6 +92,20 @@ namespace CompanyApi.Controllers
             return StatusCode(StatusCodes.Status201Created, request);
         }
 
-       
+        [HttpDelete("{companyId}")]
+        public ActionResult DeleteEmployee(string companyId, string employeeId)
+        {
+            if (company2Employees.ContainsKey(companyId) && company2Employees[companyId].Contains(employeeId))
+            {
+                company2Employees[companyId].Remove(employeeId);
+                return NoContent();
+            }
+
+            return BadRequest();
+        }
+
+
+
+
     }
 }
