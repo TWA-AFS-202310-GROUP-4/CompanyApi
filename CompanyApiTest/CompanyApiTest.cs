@@ -186,6 +186,31 @@ namespace CompanyApiTest
 
         }
 
+        [Fact]
+        public async Task Should_return_employee_list_when_get_employee_list_given_company_id ()
+        {
+            await ClearDataAsync();
+
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("google");
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
+            var company = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            var employee1 = new Employee("wdx", 12);
+            var employee2 = new Employee("heihei", 12);
+            List<Employee> employees1 = new List<Employee>();
+            employees1.Add(employee1);
+            employees1.Add(employee2);
+
+            HttpResponseMessage httpResponseMessage2 = await httpClient.PostAsJsonAsync($"api/companies/{company.Id}/employees", employee1);
+            HttpResponseMessage httpResponseMessage3 = await httpClient.PostAsJsonAsync($"api/companies/{company.Id}/employees", employee2);
+
+            var httpResponseMessage4 = await httpClient.GetAsync($"api/companies/{company.Id}/employees");
+            var employees2 = await httpResponseMessage4.Content.ReadFromJsonAsync<List<Employee>>();
+
+            Assert.Equal(employees1.Count, employees2.Count);
+
+        }
+
 
     }
 }
