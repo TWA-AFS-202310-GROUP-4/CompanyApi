@@ -59,3 +59,48 @@ Content-Type: application/json; charset=utf-8
 ### Case2: 404 Company NOT Found
 
 ######################################################################################
+
+## AC6 Add employee
+POST https://{{hostname}}:{{port}}/api/Companies/{companyID}
+Content-Type: application/json; charset=utf-8
+
+{
+  "name": "Alice"
+}
+
+## Response:
+### Case1:  Employee Created Success, Return Employee created with Status Created( 201 )
+### Case2:  Employee Name Exsiting, Return 400 Bad request
+### Case3:  Other Bad Reqeust ( Request Body Not Valid )
+
+######################################################################################
+
+## AC7 Delete employee
+DELETE  https://{{hostname}}:{{port}}/api/Companies/{companyID}/{EmployeeId}
+
+## Response:
+### Case1:  Success 204 NO CONTENT
+### Case2: 404 Employee NOT Found
+
+######################################################################################
+
+## AC8 Get all employee
+Get  https://{{hostname}}:{{port}}/api/Companies/{companyID}
+
+### Response: 
+### Case1: OK 200 with List of Employess
+### Case2: 404 Company not found
+
+## AC9 Get a employee info
+Get  https://{{hostname}}:{{port}}/api/Companies/{companyID}/{EmployeeId}
+
+### Response: 
+### Case1: OK 200 with employee info
+### Case2: 404 employee/company not found
+
+## AC10 Delete a company and all employee deleted as well
+DELETE  https://{{hostname}}:{{port}}/api/Companies/{companyID}
+
+### Response: 
+### Case1: OK 204 With not content
+### Case2: 404 company not found
