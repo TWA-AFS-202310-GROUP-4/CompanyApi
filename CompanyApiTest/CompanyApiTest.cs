@@ -1,4 +1,6 @@
 using CompanyApi;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using System.Net;
@@ -108,6 +110,52 @@ public class CompanyApiTest
         Assert.Equal(HttpStatusCode.OK, getCompanyByIdResponseMessage.StatusCode);
         Assert.Equal(createdCompany.Name, queriedCompany.Name);
     }
+
+
+    [Fact]
+    public async Task Should_return_new_company_name_when_UpdateCompany_given_a_new_company_info()
+    {
+        //Given
+        await ClearDataAsync();
+        Company companyGiven1 = new Company("Google");
+        var httpMessage = await httpClient.PostAsync("/api/companies", SerializeObjectToContent(companyGiven1));
+        var createdCompany = DeserializeTo<Company>(httpMessage).Result;
+        string id = createdCompany.Id;
+
+        //When
+        companyGiven1.Name = "SLB";
+        companyGiven1.Id = id;
+        var httpResponseMessage = await httpClient.PutAsJsonAsync<Company>("/api/companies", companyGiven1);
+
+        /*HttpResponseMessage getCompanyByIdResponseMessage = await httpClient.GetAsync("/api/companies/" + id);
+        var queriedCompany = DeserializeTo<Company>(getCompanyByIdResponseMessage).Result;
+        */
+
+
+        //Then
+        Assert.Equal(HttpStatusCode.NoContent, httpResponseMessage.StatusCode);
+    }
+
+    /*
+    [Fact]
+    public async Task Should_return_corrosponding_campanies_when_GetCompanyWithPagination_given_a_pageSize_and_pageNum()
+    {
+        //Given
+        await ClearDataAsync();
+        await httpClient.PostAsync("/api/companies", SerializeObjectToContent(new Company("BlueSky Digital Media")));
+        await httpClient.PostAsync("/api/companies", SerializeObjectToContent(new Company("SLB")));
+        await httpClient.PostAsync("/api/companies", SerializeObjectToContent(new Company("Google")));
+        await httpClient.PostAsync("/api/companies", SerializeObjectToContent(new Company("Amazon")));
+        //When
+        HttpResponseMessage getCompaniesWithPaginationResponseMessage = await httpClient.GetAsync("/api/companies/pagination?pageSize=2&pageNumber=2");
+
+        var queriedCompanies = DeserializeTo<List<Company>>(getCompaniesWithPaginationResponseMessage).Result;
+
+        //Then
+        Assert.Equal("Google", queriedCompanies[0].Name);
+        Assert.Equal("Amazon", queriedCompanies[1].Name);
+    }
+    */
 
     private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
     {

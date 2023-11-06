@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 
 namespace CompanyApi.Controllers
 {
@@ -42,6 +44,25 @@ namespace CompanyApi.Controllers
             }
 
             return NotFound();
+        }
+
+        [Route("pagination"), HttpGet]
+        public ActionResult<List<Company>> GetCompaniesWithPagination([FromQuery] string? pageSize, [FromQuery] string? pageNumber)
+        {
+            int pageSizeInt = Int32.Parse(pageSize);
+            int pageNumberInt = Int32.Parse(pageNumber);
+            int startIndex = pageSizeInt * (pageNumberInt - 1);
+            var queriedCompanies = companies.GetRange(startIndex, startIndex + pageSizeInt - 1); 
+            
+            return StatusCode(StatusCodes.Status200OK, queriedCompanies);
+        }
+
+        [HttpPut]
+        public ActionResult<Company> UpdateCompany(Company newCompanyInfo) 
+        {
+            int index = companies.FindIndex(company => company.Id.Equals(newCompanyInfo.Id));
+            companies[index].Name = newCompanyInfo.Name;
+            return StatusCode(StatusCodes.Status204NoContent);
         }
     }
 }
