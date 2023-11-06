@@ -2,6 +2,7 @@ using CompanyApi;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 
 namespace CompanyApiTest
@@ -83,6 +84,38 @@ namespace CompanyApiTest
         private async Task ClearDataAsync()
         {
             await httpClient.DeleteAsync("/api/companies");
+        }
+
+        [Fact]
+        public async Task Should_return_all_companys_when_get_all()
+        {
+
+          
+            Company company1 = new Company("Google");
+            Company company2 = new Company("Baidu");
+
+            var hettpResponse1 = await httpClient.PostAsJsonAsync("/api/companies", company1);
+            var hettpResponse2 = await httpClient.PostAsJsonAsync("/api/companies", company2);
+
+           
+            var response = await httpClient.GetAsync("/api/companies/");
+            var companys = await response.Content.ReadFromJsonAsync<List<Company>>();
+            Assert.Equal(HttpStatusCode.OK,response.StatusCode);
+
+        }
+
+
+        [Fact]
+        public async Task Should_return_correct_companys_when_give_id()
+        {
+            Company company = new Company("Google");
+            var response = await httpClient.PostAsJsonAsync("api/companies", company);
+            var responseCompany = await response.Content.ReadFromJsonAsync<Company>();
+
+            var httpResponseMessage = await httpClient.GetAsync($"api/companies/{responseCompany.Id}");
+            var creatCompany = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            Assert.Equal(responseCompany.Name,creatCompany.Name);
         }
     }
 }

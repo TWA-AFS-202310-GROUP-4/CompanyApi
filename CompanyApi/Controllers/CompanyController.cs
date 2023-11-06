@@ -15,9 +15,31 @@ namespace CompanyApi.Controllers
             {
                 return BadRequest();
             }
+
             Company companyCreated = new Company(request.Name);
             companies.Add(companyCreated);
             return StatusCode(StatusCodes.Status201Created, companyCreated);
+        }
+
+        [HttpGet]
+        public ActionResult<List<Company>> GetAll()
+        {
+            return StatusCode(StatusCodes.Status200OK, companies);
+        }
+
+        [HttpGet("{id}")]
+
+    public ActionResult<Company> Get(string id)
+        {
+            Company company = companies.Find(company =>company.Id == id);
+            if (company != null)
+            {
+                return StatusCode(StatusCodes.Status200OK, company);
+
+            }
+            return NotFound();
+
+
         }
 
         [HttpDelete]
@@ -25,5 +47,7 @@ namespace CompanyApi.Controllers
         { 
             companies.Clear();
         }
+
+
     }
 }
