@@ -109,6 +109,7 @@ namespace CompanyApiTest
             Assert.Equal(company.Name, companyGetReturned.Name);
         }
 
+        [Fact]
         public async Task Should_return_not_found_when_get_by_id_given_the_company_not_existed()
         {
             //Given
@@ -116,6 +117,65 @@ namespace CompanyApiTest
 
             //When
             HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies/" + "123");
+
+            //Then
+            Assert.Equal(httpResponseMessage.StatusCode, HttpStatusCode.NotFound);
+        }
+
+        /*
+        [Fact]
+        public async Task Should_return_company_list_when_get_by_page_size_given_list_of_existed_companies()
+        {
+            //Given
+            await ClearDataAsync();
+            for (int i = 0; i < 10; i++)
+            {
+                Company companyGiven1 = new Company($"Company{i}");
+                await httpClient.PostAsJsonAsync("/api/companies", companyGiven1);
+            }
+
+            //When
+            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies?pageSize=2&pageIndex=2");
+
+            //Then
+            string companiesGetReturned = await httpResponseMessage.Content.ReadAsStringAsync();
+            List<Company>? companyGetReturned = JsonConvert.DeserializeObject<List<Company>>(companiesGetReturned);
+            Assert.Equal(2, companyGetReturned.Count);
+            Assert.Equal("Company4", companyGetReturned[0].Name);
+            Assert.Equal("Company5", companyGetReturned[1].Name);
+        }*/
+
+        [Fact]
+        public async Task Should_return_no_content_when_put_given_an_existed_company_id()
+        {
+            //Given
+            await ClearDataAsync();
+            Company companyGiven1 = new Company("BlueSky Digital Media");
+            HttpResponseMessage httpPostReturnedMessage = await httpClient.PostAsJsonAsync("/api/companies", companyGiven1);
+            string companiesReturned = await httpPostReturnedMessage.Content.ReadAsStringAsync();
+            Company? company = JsonConvert.DeserializeObject<Company>(companiesReturned);
+
+            CreateCompanyRequest newCompanyName = new CreateCompanyRequest();
+            newCompanyName.Name = "google";
+            //When
+            HttpResponseMessage httpResponseMessage = await httpClient.PutAsJsonAsync("/api/companies/" + company.Id, newCompanyName);
+            HttpResponseMessage httpResponseMessageGet = await httpClient.GetAsync("/api/companies/" + company.Id);
+            //Then
+            Assert.Equal(httpResponseMessage.StatusCode, HttpStatusCode.NoContent);
+            string companiesGetReturned = await httpResponseMessageGet.Content.ReadAsStringAsync();
+            Company? companyGetReturned = JsonConvert.DeserializeObject<Company>(companiesGetReturned);
+            Assert.Equal(newCompanyName.Name, companyGetReturned.Name);
+        }
+
+        [Fact]
+        public async Task Should_return_not_found_when_put_given_a_non_existed_company_id()
+        {
+            //Given
+            await ClearDataAsync();
+            CreateCompanyRequest newCompanyName = new CreateCompanyRequest();
+            newCompanyName.Name = "google";
+            //When
+            HttpResponseMessage httpResponseMessage = await httpClient.PutAsJsonAsync("/api/companies/" + "123", newCompanyName);
 
             //Then
             Assert.Equal(httpResponseMessage.StatusCode, HttpStatusCode.NotFound);
