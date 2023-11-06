@@ -22,8 +22,14 @@ namespace CompanyApi.Controllers
 
         [HttpDelete]
         public void ClearData()
-        { 
+        {
             companies.Clear();
+        }
+
+        [HttpGet]
+        public ActionResult<List<Company>> GetAllCompanies()
+        {
+            return StatusCode(StatusCodes.Status200OK, companies);
         }
     }
 }
