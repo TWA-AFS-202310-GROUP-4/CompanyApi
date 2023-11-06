@@ -1,7 +1,10 @@
 using CompanyApi;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json;
+using System.Linq;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 
 namespace CompanyApiTest
@@ -22,13 +25,13 @@ namespace CompanyApiTest
             // Given
             await ClearDataAsync();
             Company companyGiven = new Company("BlueSky Digital Media");
-            
+
             // When
             HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(
-                "/api/companies", 
+                "/api/companies",
                 SerializeObjectToContent(companyGiven)
             );
-           
+
             // Then
             Assert.Equal(HttpStatusCode.Created, httpResponseMessage.StatusCode);
             Company? companyCreated = await DeserializeTo<Company>(httpResponseMessage);
@@ -47,7 +50,7 @@ namespace CompanyApiTest
             // When
             await httpClient.PostAsync("/api/companies", SerializeObjectToContent(companyGiven));
             HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(
-                "/api/companies", 
+                "/api/companies",
                 SerializeObjectToContent(companyGiven)
             );
             // Then
@@ -60,10 +63,10 @@ namespace CompanyApiTest
             // Given
             await ClearDataAsync();
             StringContent content = new StringContent("{\"unknownField\": \"BlueSky Digital Media\"}", Encoding.UTF8, "application/json");
-          
+
             // When
             HttpResponseMessage httpResponseMessage = await httpClient.PostAsync("/api/companies", content);
-           
+
             // Then
             Assert.Equal(HttpStatusCode.BadRequest, httpResponseMessage.StatusCode);
         }
@@ -84,5 +87,25 @@ namespace CompanyApiTest
         {
             await httpClient.DeleteAsync("/api/companies");
         }
+
+        [Theory]
+        [InlineData(2,"acompany", "bcomoany")]
+        public async Task Should_return_all_companies_when_get_all_companies_given_nothing(int expectedLength,params string[] companyname)
+        {
+            //Given
+            await ClearDataAsync();
+            foreach (var name in companyname)
+            {
+                await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest { Name = name });
+            }
+            //when
+            HttpResponseMessage responseMessage = await httpClient.GetAsync("/api/companies");
+            List<Company>? companies = await responseMessage.Content.ReadFromJsonAsync<List<Company>>();
+            //Then
+            Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+            Assert.NotNull(companies);
+            Assert.Equal(expectedLength, companies.Count());
+        }
+
     }
 }
