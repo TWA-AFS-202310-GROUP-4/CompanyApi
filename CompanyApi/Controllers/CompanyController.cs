@@ -26,13 +26,8 @@ namespace CompanyApi.Controllers
         public void ClearData()
         { 
             companies.Clear();
+            employees.Clear();
         }
-
-        //[HttpGet]
-        //public ActionResult<List<Company>> GetAll()
-        //{
-        //    return Ok(companies);
-        //}
 
         [HttpGet("{id}")]
         public ActionResult<Company> GetById(string id)
@@ -106,6 +101,19 @@ namespace CompanyApi.Controllers
 
                 return Created("", employee);
             }
+        }
+
+        [HttpDelete("employees/{id}")]
+        public ActionResult DeleteEmployee(string id) 
+        {
+            var e = employees.Find(e => e.Id == id);
+            if (e == null)
+            {
+                return NotFound();
+            }
+            employees.Remove(e);
+
+            return NoContent();
         }
     }
 }

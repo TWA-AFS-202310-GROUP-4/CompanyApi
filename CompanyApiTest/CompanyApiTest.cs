@@ -229,6 +229,51 @@ namespace CompanyApiTest
             Assert.Equal(HttpStatusCode.BadRequest, eResponse.StatusCode);
         }
 
+        [Fact]
+        public async Task Should_delete_employee_with_204_when_delete_given_employee_id()
+        {
+            await ClearDataAsync();
+
+            var company = new CreateCompanyRequest() { Name = "new" };
+            var response = await httpClient.PostAsJsonAsync("/api/companies", company);
+            var newCompany = await response.Content.ReadFromJsonAsync<Company>();
+            var employee = new EmployeeCreate()
+            {
+                Name = "new employee",
+                Position = "",
+                CompanyId = newCompany.Id
+            };
+            var eResponse = await httpClient.PostAsJsonAsync($"/api/companies/employees", employee);
+            var newEmployee = await eResponse.Content.ReadFromJsonAsync<Employee>();
+
+            var dRes = await httpClient.DeleteAsync($"/api/companies/employees/{newEmployee.Id}");
+
+            Assert.Equal(HttpStatusCode.NoContent, dRes.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_delete_employee_with_404_when_delete_given_employee_id_not_exist()
+        {
+            await ClearDataAsync();
+
+            var company = new CreateCompanyRequest() { Name = "new" };
+            var response = await httpClient.PostAsJsonAsync("/api/companies", company);
+            var newCompany = await response.Content.ReadFromJsonAsync<Company>();
+            var employee = new EmployeeCreate()
+            {
+                Name = "new employee",
+                Position = "",
+                CompanyId = newCompany.Id
+            };
+            var eResponse = await httpClient.PostAsJsonAsync($"/api/companies/employees", employee);
+            var newEmployee = await eResponse.Content.ReadFromJsonAsync<Employee>();
+
+            var dRes = await httpClient.DeleteAsync($"/api/companies/employees/{newEmployee.Id}s");
+
+            Assert.Equal(HttpStatusCode.NotFound, dRes.StatusCode);
+        }
+
+
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
             string response = await httpResponseMessage.Content.ReadAsStringAsync();
