@@ -258,5 +258,28 @@ namespace CompanyApiTest
             //Then
             Assert.Equal(HttpStatusCode.NotFound, createEmployeeHttpResponseMessage.StatusCode);
         }
+
+        [Theory]
+        [InlineData("Alice")]
+        public async Task Should_return_no_content_when_delete_employee_given_a_employee_name_and_companyId(string employeeName)
+        {
+            //given
+            await ClearDataAsync();
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest
+            {
+                Name = "BlueSky Digital Media"
+            });
+            Company? company = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+            var companyId = company.Id;
+            HttpResponseMessage createEmployeeHttpResponseMessage = await httpClient.PostAsJsonAsync($"/api/companies/{companyId}/employees", new CreateEmployeeRequest(employeeName));
+            Employee? employee = await createEmployeeHttpResponseMessage.Content.ReadFromJsonAsync<Employee>();
+            var employeeId = employee.EmployeeId;
+
+            //when
+            HttpResponseMessage deleteHttpResponseMessage = await httpClient.DeleteAsync($"/api/companies/{companyId}/{employeeId}");
+
+            //then
+            Assert.Equal(HttpStatusCode.NoContent, deleteHttpResponseMessage.StatusCode);
+        }
     }
 }

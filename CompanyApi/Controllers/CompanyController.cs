@@ -90,5 +90,23 @@ namespace CompanyApi.Controllers
             return Created("",newEmployee);
            
         }
+
+        [HttpDelete("{companyId}/{employeeId}")]
+        public ActionResult<Employee> DeleteSpecificEmplpyee(string companyId, string employeeId)
+        {
+            var companyIndex = companies.FindIndex((company) => company.Id == companyId);
+            if (companyIndex == -1)
+            {
+                return NotFound();
+            }
+            var employeeIndex = companies[companyIndex].EmployeesList.FindIndex(employee => employee.EmployeeId == employeeId);
+            if (employeeIndex == -1)
+            {
+                return NotFound();
+            }
+            companies[companyIndex].EmployeesList.RemoveAt(employeeIndex);
+            return NoContent();
+
+        }
     }
 }
