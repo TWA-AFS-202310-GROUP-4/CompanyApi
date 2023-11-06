@@ -92,7 +92,7 @@ namespace CompanyApi.Controllers
             return StatusCode(StatusCodes.Status201Created, request);
         }
 
-        [HttpDelete("{companyId}")]
+        [HttpDelete("{companyId}/employees/{employeeId}")]
         public ActionResult DeleteEmployee(string companyId, string employeeId)
         {
             if (company2Employees.ContainsKey(companyId) && company2Employees[companyId].Contains(employeeId))

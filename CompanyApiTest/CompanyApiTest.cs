@@ -229,13 +229,13 @@ namespace CompanyApiTest
             await httpClient.PostAsJsonAsync("/api/companies/", companyGiven);
 
             //When
-            HttpResponseMessage httpResponseMessage = await httpClient.DeleteAsync("/api/companies/" + companyGiven.Id + "/" + "123");
+            HttpResponseMessage httpResponseMessage = await httpClient.DeleteAsync("/api/companies/" + companyGiven.Id + "/employees/" + "123");
 
             //Then
-            Assert.Equal(httpResponseMessage.StatusCode, HttpStatusCode.NotFound);
+            Assert.Equal(HttpStatusCode.BadRequest, httpResponseMessage.StatusCode );
         }
 
-        /*
+        
         [Fact]
         public async Task Should_return_No_Content_when_delete_given_an_employee_name()
         {
@@ -250,11 +250,11 @@ namespace CompanyApiTest
             Employee? employeeReturned = JsonConvert.DeserializeObject<Employee>(employeeInfo);
 
             //When
-            HttpResponseMessage httpResponseMessage = await httpClient.DeleteAsync("/api/companies/" + companyGiven.Id + "/" + newEmployee.Id);
+            HttpResponseMessage httpResponseMessage = await httpClient.DeleteAsync("/api/companies/" + companyGiven.Id + "/employees/" + newEmployee.Id);
 
             //Then
-            Assert.Equal(httpResponseMessage.StatusCode, HttpStatusCode.NoContent);
-        }*/
+            Assert.Equal(HttpStatusCode.NoContent, httpResponseMessage.StatusCode);
+        }
 
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
