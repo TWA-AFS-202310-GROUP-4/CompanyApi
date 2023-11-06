@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
 
 namespace CompanyApi.Controllers
 {
@@ -26,12 +27,12 @@ namespace CompanyApi.Controllers
         { 
             companies.Clear();
         }
-
+        /*
         [HttpGet]
         public ActionResult<List<Company>> Get()
         {
             return StatusCode(StatusCodes.Status200OK, companies);
-        }
+        }*/
 
         [HttpGet("{id}")]
         public ActionResult<Company> GetByName(string id)
@@ -45,21 +46,19 @@ namespace CompanyApi.Controllers
             return StatusCode(StatusCodes.Status404NotFound);
         }
 
-        /*
+        
         [HttpGet]
-        public ActionResult<List<Company>> GetByPageSize(string pageSize, string pageIndex)
+        public ActionResult<List<Company>> GetByPageSize([FromQuery]int? pageSize, [FromQuery]int? pageIndex)
         {
-            int size = Int32.Parse(pageSize);
-            int index = Int32.Parse(pageIndex);
-            int total = companies.Count;
-           int pageTotalNum = total / size;
-           pageTotalNum = pageTotalNum % size == 0? pageTotalNum: pageTotalNum++;
-           int startIndex = index * size;
-           int endIndex = Math.Min(startIndex + size, total);
-           List<Company> returnedCompanies = companies.GetRange(startIndex, endIndex);
+            if (pageSize == null || pageIndex == null)
+            {
+                return Ok(companies);
+            }
+
+           List<Company> returnedCompanies = companies.Skip(((int)pageIndex-1) * (int)pageSize).Take((int)pageSize).ToList();
            return Ok(returnedCompanies);
 
-        }*/
+        }
 
         [HttpPut("{id}")]
         public ActionResult<Company> PutCompanyById(string id, CreateCompanyRequest request)

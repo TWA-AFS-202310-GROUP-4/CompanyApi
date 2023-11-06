@@ -122,7 +122,7 @@ namespace CompanyApiTest
             Assert.Equal(httpResponseMessage.StatusCode, HttpStatusCode.NotFound);
         }
 
-        /*
+        
         [Fact]
         public async Task Should_return_company_list_when_get_by_page_size_given_list_of_existed_companies()
         {
@@ -141,9 +141,9 @@ namespace CompanyApiTest
             string companiesGetReturned = await httpResponseMessage.Content.ReadAsStringAsync();
             List<Company>? companyGetReturned = JsonConvert.DeserializeObject<List<Company>>(companiesGetReturned);
             Assert.Equal(2, companyGetReturned.Count);
-            Assert.Equal("Company4", companyGetReturned[0].Name);
-            Assert.Equal("Company5", companyGetReturned[1].Name);
-        }*/
+            Assert.Equal("Company2", companyGetReturned[0].Name);
+            Assert.Equal("Company3", companyGetReturned[1].Name);
+        }
 
         [Fact]
         public async Task Should_return_no_content_when_put_given_an_existed_company_id()
