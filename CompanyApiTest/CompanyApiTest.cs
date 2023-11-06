@@ -158,9 +158,32 @@ namespace CompanyApiTest
 
             Employee employee = new Employee("wdx", 20);
             var addEmployeeresponse = await httpClient.PostAsJsonAsync($"/api/companies/{responsecompany.Id}/employees", employee);
-            var addEmployeeCompany = await addEmployeeresponse.Content.ReadFromJsonAsync<Company>();
+            var addEmployee = await addEmployeeresponse.Content.ReadFromJsonAsync<Employee>();
 
-            Assert.Equal("wdx", addEmployeeCompany.Employees[0].Name);
+            Assert.Equal("wdx", addEmployee.Name);
+        }
+
+        [Fact]
+        public async Task Should_return_nocontent_when_delete_employee_from_company()
+        {
+            await ClearDataAsync();
+
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("google");
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
+            var company = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            var employee = new Employee( "wdx",12);
+
+            HttpResponseMessage httpResponseMessage2 = await httpClient.PostAsJsonAsync($"api/companies/{company.Id}/employees", employee);
+
+            var employee2 = await httpResponseMessage2.Content.ReadFromJsonAsync<Employee>();
+
+            //when
+            HttpResponseMessage httpResponseMessageFinal = await httpClient.DeleteAsync($"/api/companies/{company.Id}/employees/{employee2.Id}");
+
+            //then
+            Assert.Equal(HttpStatusCode.NoContent, httpResponseMessageFinal.StatusCode);
+
         }
 
 

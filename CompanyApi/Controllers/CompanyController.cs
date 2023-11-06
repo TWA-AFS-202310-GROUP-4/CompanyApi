@@ -60,7 +60,7 @@ namespace CompanyApi.Controllers
             return NoContent();
         }
         [HttpPost("{companyId}/employees")]
-        public ActionResult<Company> AddEmployee(string companyId, [FromBody] Employee employee)
+        public ActionResult<Employee> AddEmployee(string companyId, [FromBody] Employee employee)
         {
             var company = companies.FirstOrDefault(c => c.Id == companyId);
             if (company == null)
@@ -68,10 +68,25 @@ namespace CompanyApi.Controllers
                 return NotFound();
             }
 
-            employee.Id = Guid.NewGuid().ToString();
-            company.Employees.Add(employee);
+            Employee employCreated = new Employee(employee.Name,employee.Salary);
+            company.Employees.Add(employCreated);
 
-            return Ok(company);
+            return Ok(employCreated);
+        }
+        [HttpDelete("{companyId}/employees/{employeeId}")]
+        public ActionResult<Company> DeleteEmployee(string companyId, string employeeId)
+        {
+            var company = companies.FirstOrDefault(c => c.Id == companyId);
+            var employee = company?.Employees.FirstOrDefault(e => e.Id == employeeId);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                company.Employees.Remove(employee);
+                return NoContent();
+            }
         }
 
 
