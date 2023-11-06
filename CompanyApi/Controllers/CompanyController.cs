@@ -8,7 +8,7 @@ namespace CompanyApi.Controllers
     public class CompanyController : ControllerBase
     {
         private static List<Company> companies = new List<Company>();
-        private static Dictionary<string,List<Employee>> company2Employees = new ();
+        private static Dictionary<string,List<string>> company2Employees = new ();
 
         [HttpPost]
         public ActionResult<Company> Create(CreateCompanyRequest request)
@@ -74,23 +74,23 @@ namespace CompanyApi.Controllers
         }
 
         [HttpPost("{id}")]
-        public ActionResult<Employee> CreateEmployee(string id, CreateEmployeeRequest request)
+        public ActionResult<Employee> CreateEmployee(string id, Employee request)
         {
-            Employee e1 = new Employee(request.Name, id);
             if (company2Employees.ContainsKey(id))
             {
-                if (company2Employees[id].Exists(employee => employee.Name.Equals(request.Name)))
+                if (company2Employees[id].Exists(employee => employee.Equals(request.Id)))
                 {
                     return BadRequest();
                 }
-                company2Employees[id].Add(e1);
+                company2Employees[id].Add(request.Id);
             }
 
-            List<Employee> employees = new List<Employee>();
-            employees.Add(e1);
+            List<string> employees = new List<string>();
+            employees.Add(request.Id);
             company2Employees.Add(id, employees);
-            return StatusCode(StatusCodes.Status201Created, e1);
+            return StatusCode(StatusCodes.Status201Created, request);
         }
 
+       
     }
 }

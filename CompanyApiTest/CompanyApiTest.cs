@@ -186,15 +186,15 @@ namespace CompanyApiTest
         {
             //Given
             await ClearDataAsync();
-            CreateEmployeeRequest newEmployee = new CreateEmployeeRequest();
-            newEmployee.Name = "Alice";
+            
             Company companyGiven = new Company("BlueSky Digital Media");
+            Employee newEmployee = new Employee("Alice", companyGiven.Id);
             await httpClient.PostAsJsonAsync("/api/companies/", companyGiven);
             //When
             HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("/api/companies/" + companyGiven.Id, newEmployee);
 
             //Then
-            Assert.Equal(httpResponseMessage.StatusCode, HttpStatusCode.Created);
+            Assert.Equal(HttpStatusCode.Created, httpResponseMessage.StatusCode);
             string employeeInfo = await httpResponseMessage.Content.ReadAsStringAsync();
             Employee? employeeReturned = JsonConvert.DeserializeObject<Employee>(employeeInfo);
             Assert.Equal(newEmployee.Name, employeeReturned.Name);
@@ -205,17 +205,21 @@ namespace CompanyApiTest
         {
             //Given
             await ClearDataAsync();
-            CreateEmployeeRequest newEmployee = new CreateEmployeeRequest();
-            newEmployee.Name = "Alice";
             Company companyGiven = new Company("BlueSky Digital Media");
+            Employee newEmployee = new Employee("Alice", companyGiven.Id);
+
             await httpClient.PostAsJsonAsync("/api/companies/", companyGiven);
+            HttpResponseMessage httpPostMessage = await httpClient.PostAsJsonAsync("/api/companies/" + companyGiven.Id, newEmployee);
+
             //When
             await httpClient.PostAsJsonAsync("/api/companies/" + companyGiven.Id, newEmployee);
             HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("/api/companies/" + companyGiven.Id, newEmployee);
 
             //Then
-            Assert.Equal(httpResponseMessage.StatusCode, HttpStatusCode.BadRequest);
+            Assert.Equal(HttpStatusCode.BadRequest, httpResponseMessage.StatusCode );
         }
+
+
 
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
