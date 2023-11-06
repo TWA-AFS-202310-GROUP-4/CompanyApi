@@ -117,5 +117,24 @@ namespace CompanyApiTest
 
             Assert.Equal(responseCompany.Name,creatCompany.Name);
         }
+
+        [Fact]
+        public async Task Should_return_pagesize_from_pageindex_result_give_pagesize_and_pageindex_when_get_pages()
+        {
+            await ClearDataAsync();
+            for (int i = 0; i < 10; i++)
+            {
+               Company companyGiven = new Company($"Company{i}");
+               await httpClient.PostAsync("/api/companies",SerializeObjectToContent(companyGiven));
+            }
+            int pageIndex = 2;
+            int pageSize = 2;
+
+            var response = await httpClient.GetAsync($"api/companies/page?pageSize={pageSize}&pageIndex={pageIndex}");
+            var companys = await response.Content.ReadFromJsonAsync<List<Company>>();
+            Assert.Equal(pageSize, companys.Count);
+            Assert.Equal("Company2", companys[0].Name);
+
+        }
     }
 }

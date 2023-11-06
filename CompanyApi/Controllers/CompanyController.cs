@@ -6,7 +6,15 @@ namespace CompanyApi.Controllers
     [ApiController]
     public class CompanyController : ControllerBase
     {
-        private static List<Company> companies = new List<Company>();
+        private static List<Company> companies = new List<Company>() 
+        {
+            new Company("Google1"),
+            new Company("Google2"),
+            new Company("Google3"),
+            new Company("Google4"),
+            new Company("Google5"),
+            new Company("Google6"),
+        };
 
         [HttpPost]
         public ActionResult<Company> Create(CreateCompanyRequest request)
@@ -29,7 +37,7 @@ namespace CompanyApi.Controllers
 
         [HttpGet("{id}")]
 
-    public ActionResult<Company> Get(string id)
+        public ActionResult<Company> Get(string id)
         {
             Company company = companies.Find(company =>company.Id == id);
             if (company != null)
@@ -40,6 +48,13 @@ namespace CompanyApi.Controllers
             return NotFound();
 
 
+        }
+
+        [HttpGet("page")]
+        public ActionResult<List<Company>> GetPage(int pageSize, int pageIndex)
+        {
+           var responseCompany = companies.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+           return Ok(responseCompany);
         }
 
         [HttpDelete]
