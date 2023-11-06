@@ -46,13 +46,13 @@ namespace CompanyApi.Controllers
             return NotFound();
         }
 
-        [Route("pagination"), HttpGet]
+        [HttpGet("{pageSize}/{pageNumber}")]
         public ActionResult<List<Company>> GetCompaniesWithPagination([FromQuery] string? pageSize, [FromQuery] string? pageNumber)
         {
             int pageSizeInt = Int32.Parse(pageSize);
             int pageNumberInt = Int32.Parse(pageNumber);
             int startIndex = pageSizeInt * (pageNumberInt - 1);
-            var queriedCompanies = companies.GetRange(startIndex, startIndex + pageSizeInt - 1); 
+            var queriedCompanies = companies.GetRange(startIndex, startIndex + pageSizeInt - 1);
             
             return StatusCode(StatusCodes.Status200OK, queriedCompanies);
         }
@@ -61,8 +61,33 @@ namespace CompanyApi.Controllers
         public ActionResult<Company> UpdateCompany(Company newCompanyInfo) 
         {
             int index = companies.FindIndex(company => company.Id.Equals(newCompanyInfo.Id));
-            companies[index].Name = newCompanyInfo.Name;
-            return StatusCode(StatusCodes.Status204NoContent);
+            if (index >= 0)
+            {
+                companies[index].Name = newCompanyInfo.Name;
+                return StatusCode(StatusCodes.Status204NoContent);
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
+           
+        }
+
+        [HttpPut("{companyId}")]
+        public ActionResult<Company> AddEmployeeToACompany([FromRoute] string companyId, Employee newEmployee)
+        {
+            int index = companies.FindIndex(company => company.Id.Equals(companyId));
+            if (index >= 0)
+            {
+               companies[index].Employees.Add(newEmployee);
+                return StatusCode(StatusCodes.Status204NoContent);
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
+
+            
         }
     }
 }
