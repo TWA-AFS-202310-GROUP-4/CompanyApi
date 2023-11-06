@@ -181,6 +181,42 @@ namespace CompanyApiTest
             Assert.Equal(httpResponseMessage.StatusCode, HttpStatusCode.NotFound);
         }
 
+        [Fact]
+        public async Task Should_return_Created_and_employ_info_when_post_given_an_existed_company_id()
+        {
+            //Given
+            await ClearDataAsync();
+            CreateEmployeeRequest newEmployee = new CreateEmployeeRequest();
+            newEmployee.Name = "Alice";
+            Company companyGiven = new Company("BlueSky Digital Media");
+            await httpClient.PostAsJsonAsync("/api/companies/", companyGiven);
+            //When
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("/api/companies/" + companyGiven.Id, newEmployee);
+
+            //Then
+            Assert.Equal(httpResponseMessage.StatusCode, HttpStatusCode.Created);
+            string employeeInfo = await httpResponseMessage.Content.ReadAsStringAsync();
+            Employee? employeeReturned = JsonConvert.DeserializeObject<Employee>(employeeInfo);
+            Assert.Equal(newEmployee.Name, employeeReturned.Name);
+        }
+
+        [Fact]
+        public async Task Should_return_Bad_Request_when_post_given_an_existed_employee_name()
+        {
+            //Given
+            await ClearDataAsync();
+            CreateEmployeeRequest newEmployee = new CreateEmployeeRequest();
+            newEmployee.Name = "Alice";
+            Company companyGiven = new Company("BlueSky Digital Media");
+            await httpClient.PostAsJsonAsync("/api/companies/", companyGiven);
+            //When
+            await httpClient.PostAsJsonAsync("/api/companies/" + companyGiven.Id, newEmployee);
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("/api/companies/" + companyGiven.Id, newEmployee);
+
+            //Then
+            Assert.Equal(httpResponseMessage.StatusCode, HttpStatusCode.BadRequest);
+        }
+
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
             string response = await httpResponseMessage.Content.ReadAsStringAsync();
