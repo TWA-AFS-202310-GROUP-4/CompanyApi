@@ -59,6 +59,21 @@ namespace CompanyApi.Controllers
             company.Name = updateCompany.Name;
             return NoContent();
         }
+        [HttpPost("{companyId}/employees")]
+        public ActionResult<Company> AddEmployee(string companyId, [FromBody] Employee employee)
+        {
+            var company = companies.FirstOrDefault(c => c.Id == companyId);
+            if (company == null)
+            {
+                return NotFound();
+            }
+
+            employee.Id = Guid.NewGuid().ToString();
+            company.Employees.Add(employee);
+
+            return Ok(company);
+        }
+
 
         [HttpDelete]
         public void ClearData()

@@ -145,9 +145,24 @@ namespace CompanyApiTest
             var responsecompany = await  response.Content.ReadFromJsonAsync<Company>();
             var updatecompany = new Company("google");
             var updateResponse =  await httpClient.PutAsJsonAsync($"api/companies/{responsecompany.Id}", updatecompany);
-            
-
             Assert.Equal(HttpStatusCode.NoContent, updateResponse.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_return_update_company_with_status_201_when_add_employee_to_company()
+        {
+            await ClearDataAsync();
+            Company companyGiven = new Company("Google");
+            var response = await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
+            var responsecompany = await response.Content.ReadFromJsonAsync<Company>();
+
+            Employee employee = new Employee("wdx", 20);
+            var addEmployeeresponse = await httpClient.PostAsJsonAsync($"/api/companies/{responsecompany.Id}/employees", employee);
+            var addEmployeeCompany = await addEmployeeresponse.Content.ReadFromJsonAsync<Company>();
+
+            Assert.Equal("wdx", addEmployeeCompany.Employees[0].Name);
+        }
+
+
     }
 }
