@@ -32,5 +32,15 @@ namespace CompanyApi.Controllers
             return Ok(companies);
         }
 
+        [HttpGet("{id}")]
+        public ActionResult<Company> GetCompanyById(string id)
+        {
+            var index=companies.FindIndex(company => company.Id == id);
+            if(index == -1)
+            {
+                return NoContent();
+            }
+            return Ok(companies[index]);
+        }
     }
 }

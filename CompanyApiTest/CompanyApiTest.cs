@@ -107,5 +107,41 @@ namespace CompanyApiTest
             Assert.Equal(expectedLength, companies.Count());
         }
 
+        [Theory]
+        [InlineData("acompany")]
+        public async Task should_return_the_correspond_company_when_get_company_by_id_give_the_company_id(string companyname)
+        {
+            //Given
+            await ClearDataAsync();          
+            HttpResponseMessage httpResponseMessage=await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest { Name = companyname });
+            var existedCompany= await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+            var id = existedCompany.Id;
+
+            //When
+            var url = $"/api/companies/{id}";
+            HttpResponseMessage getByIdResponseMessage = await httpClient.GetAsync(url);
+            Company? company =await getByIdResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            //Then
+            Assert.NotNull(company);
+            Assert.Equal(existedCompany.ToString(), company.ToString());
+        }
+
+        [Theory]
+        [InlineData("acompany")]
+        public async Task should_get_no_content_when_get_company_by_id_give_not_existed_id(string companyname)
+        {
+            //Given
+            await ClearDataAsync();
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest { Name = companyname });
+            var existedCompany = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+            var fakeId = Guid.NewGuid().ToString();
+            //When
+            var url = $"/api/companies/{fakeId}";
+            HttpResponseMessage getByIdResponseMessage = await httpClient.GetAsync(url);
+
+            //Then
+            Assert.Equal(HttpStatusCode.NoContent, getByIdResponseMessage.StatusCode);
+        }
     }
 }
