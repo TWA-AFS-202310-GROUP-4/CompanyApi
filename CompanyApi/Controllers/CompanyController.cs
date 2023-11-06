@@ -122,6 +122,13 @@ namespace CompanyApi.Controllers
         { 
             companies.Clear();
         }
+        [HttpDelete("{companyId}")]
+        public ActionResult DeleteCompany(string companyId)
+        {
+            var company = companies.FirstOrDefault(c => c.Id == companyId);
+            companies.Remove(company);
+            return NoContent();
+        }
 
 
     }
