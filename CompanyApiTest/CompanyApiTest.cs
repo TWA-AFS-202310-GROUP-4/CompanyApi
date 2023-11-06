@@ -21,7 +21,6 @@ namespace CompanyApiTest
         public async Task Should_return_created_company_with_status_201_when_create_cpmoany_given_a_company_name()
         {
             // Given
-            await ClearDataAsync();
             Company companyGiven = new Company("BlueSky Digital Media");
             
             // When
@@ -42,11 +41,10 @@ namespace CompanyApiTest
         public async Task Should_return_bad_reqeust_when_create_company_given_a_existed_company_name()
         {
             // Given
-            await ClearDataAsync();
-            Company companyGiven = new Company("BlueSky Digital Media");
+           
+            Company companyGiven = new Company("Company1");
 
             // When
-            await httpClient.PostAsync("/api/companies", SerializeObjectToContent(companyGiven));
             HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(
                 "/api/companies", 
                 SerializeObjectToContent(companyGiven)
@@ -59,7 +57,6 @@ namespace CompanyApiTest
         public async Task Should_return_bad_reqeust_when_create_company_given_a_company_with_unknown_field()
         {
             // Given
-            await ClearDataAsync();
             StringContent content = new StringContent("{\"unknownField\": \"BlueSky Digital Media\"}", Encoding.UTF8, "application/json");
           
             // When
@@ -87,59 +84,42 @@ namespace CompanyApiTest
         }
 
         [Fact]
-        public async Task Should_return_all_companys_when_get_all()
-        {
-
-          
-            Company company1 = new Company("Google");
-            Company company2 = new Company("Baidu");
-
-            var hettpResponse1 = await httpClient.PostAsJsonAsync("/api/companies", company1);
-            var hettpResponse2 = await httpClient.PostAsJsonAsync("/api/companies", company2);
-
-           
+        public async Task Should_return_all_companys_when_get_all_company()
+        {   
             var response = await httpClient.GetAsync("/api/companies/");
             var companys = await response.Content.ReadFromJsonAsync<List<Company>>();
-            Assert.Equal(HttpStatusCode.OK,response.StatusCode);
+            Assert.Equal("Company1", companys[0].Name);
 
         }
 
 
         [Fact]
-        public async Task Should_return_correct_companys_when_give_id()
+        public async Task Should_return_correct_companys_when_get_company_given_id()
         {
-            Company company = new Company("Google");
-            var response = await httpClient.PostAsJsonAsync("api/companies", company);
-            var responseCompany = await response.Content.ReadFromJsonAsync<Company>();
-
-            var httpResponseMessage = await httpClient.GetAsync($"api/companies/{responseCompany.Id}");
+            string id = "1234";
+            var httpResponseMessage = await httpClient.GetAsync($"api/companies/{id}");
             var creatCompany = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
 
-            Assert.Equal(responseCompany.Name,creatCompany.Name);
+            Assert.Equal("Company1", creatCompany.Name);
         }
 
         [Fact]
         public async Task Should_return_pagesize_from_pageindex_result_give_pagesize_and_pageindex_when_get_pages()
         {
-            await ClearDataAsync();
-            for (int i = 0; i < 10; i++)
-            {
-               Company companyGiven = new Company($"Company{i}");
-               await httpClient.PostAsync("/api/companies",SerializeObjectToContent(companyGiven));
-            }
+            
             int pageIndex = 2;
-            int pageSize = 2;
+            int pageSize = 3;
 
             var response = await httpClient.GetAsync($"api/companies/page?pageSize={pageSize}&pageIndex={pageIndex}");
             var companys = await response.Content.ReadFromJsonAsync<List<Company>>();
             Assert.Equal(pageSize, companys.Count);
-            Assert.Equal("Company2", companys[0].Name);
+            Assert.Equal("Company4", companys[0].Name);
 
         }
         [Fact]
-        public async Task Should_return_update_company_with_status_201_when_update_cpmoany_name_by_id()
+        public async Task Should_return_update_company_with_status_201_when_update_company_given_id_and_updatemessage()
         {
-            await ClearDataAsync();
+            
             Company companyGiven = new Company("Google");
             var response =  await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
             var responsecompany = await  response.Content.ReadFromJsonAsync<Company>();
@@ -149,10 +129,10 @@ namespace CompanyApiTest
         }
 
         [Fact]
-        public async Task Should_return_update_company_with_status_201_when_add_employee_to_company()
+        public async Task Should_return_update_company_with_status_201_when_add_employee_to_company_give_employee_and_company_id()
         {
             await ClearDataAsync();
-            Company companyGiven = new Company("Google");
+            Company companyGiven = new Company("Company12");
             var response = await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
             var responsecompany = await response.Content.ReadFromJsonAsync<Company>();
 
@@ -164,11 +144,11 @@ namespace CompanyApiTest
         }
 
         [Fact]
-        public async Task Should_return_nocontent_when_delete_employee_from_company()
+        public async Task Should_return_nocontent_when_delete_employee_from_company_given_company_id_and_employee_id()
         {
             await ClearDataAsync();
 
-            CreateCompanyRequest companyGiven = new CreateCompanyRequest("google");
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Comapny13");
             HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
             var company = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
 
@@ -191,7 +171,7 @@ namespace CompanyApiTest
         {
             await ClearDataAsync();
 
-            CreateCompanyRequest companyGiven = new CreateCompanyRequest("google");
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("company14");
             HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
             var company = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
 
@@ -212,11 +192,11 @@ namespace CompanyApiTest
         }
 
         [Fact]
-        public async Task Should_return_employee_when_update_employee_given_company_id_and_update_message()
+        public async Task Should_return_employee_when_update_employee_given_company_id_and_employee_id_update_message()
         {
             await ClearDataAsync();
 
-            CreateCompanyRequest companyGiven = new CreateCompanyRequest("google");
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Company15");
             HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
             var company = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
 
@@ -238,7 +218,7 @@ namespace CompanyApiTest
         {
             await ClearDataAsync();
 
-            CreateCompanyRequest companyGiven = new CreateCompanyRequest("google");
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Company16");
             HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
             var company = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
 

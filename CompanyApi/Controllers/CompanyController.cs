@@ -6,7 +6,20 @@ namespace CompanyApi.Controllers
     [ApiController]
     public class CompanyController : ControllerBase
     {
-        private static List<Company> companies = new List<Company>();
+        private static List<Company> companies = new List<Company>()
+        {
+            new Company("Company1"){Id = "1234"},
+            new Company("Company2"),
+            new Company("Company3"),
+            new Company("Company4"),
+            new Company("Company5"),
+            new Company("Company6"),
+            new Company("Company7"),
+            new Company("Company8"),
+            new Company("Company9"),
+            new Company("Company10"),
+
+        };
      
 
         [HttpPost]
