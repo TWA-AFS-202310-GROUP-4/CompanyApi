@@ -59,3 +59,76 @@ Content-Type: application/json; charset=utf-8
 ### Case2: 404 Company NOT Found
 
 ######################################################################################
+
+## AC6 Add an employee to a specific company
+Post https://{{hostname}}:{{port}}/api/Companies/{companyID}/employees
+Content-Type: application/json; charset=utf-8
+
+{
+  "name": "Alice"
+  "companyId":"xxxxxxxxxxxxxxxxx"
+}
+### Response: 
+### Case1:  Employee Created Success, Return Employee created with Status Created( 201 )
+### Case2:  Employee Name Exsiting in this specific company, Return 400 Bad request
+### Case3:  Other Bad Reqeust ( Request Body Not Valid )
+
+######################################################################################
+
+## AC7 Delete an employee to a specific company
+Delete https://{{hostname}}:{{port}}/api/Companies/{companyID}/{employeeID}
+Content-Type: application/json; charset=utf-8
+
+{
+  "employeeID": "xxxxxxxxxxxxxxxxxxxxxx"
+}
+### Response: 
+### Case1:  Employee deleted Success, Return Employee deleted with Status (204 )
+### Case2:  EmployeeId Not Existing, Return 404
+### Case3:  Other Bad Reqeust ( Request Body Not Valid )
+
+######################################################################################
+
+## AC8 Obtain list of all employee under a specific company
+Get https://{{hostname}}:{{port}}/api/Companies/{companyID}/employees
+Content-Type: application/json; charset=utf-8
+### Response: 
+### Case1:  Response: OK 200 with List of Employees of a specific company:
+
+######################################################################################
+
+
+## AC9 Update Basic information of a specifi employee under a specific company
+PUT https://{{hostname}}:{{port}}/api/Companies/{companyID}/{employeeID}
+Content-Type: application/json; charset=utf-8
+
+{
+  ["employeeId":"xxxxxxxxxxxxxxxxx",
+  "employeeName":"Alice"
+  "companyId":"xxxxxxxxxxxxxx"
+  ],
+    ["employeeId":"xxxxxxxxxxxxxxxxx",
+  "employeeName":"Bob"
+  "companyId":"xxxxxxxxxxxxxx"
+  ]
+}
+### Response: 
+### Case1:  Response: OK 200 with LUpdate Basic information of a specifi employee under a specific company
+### Case2:  EmployeeId or CompanyId Not Existing, Return 404
+### Case3:  Other Bad Reqeust ( Request Body Not Valid )
+
+######################################################################################
+
+## AC10 Delete a specific company with all employess belong to Company Deleted
+PUT https://{{hostname}}:{{port}}/api/Companies/{companyID}
+Content-Type: application/json; charset=utf-8
+
+{
+  "companyId":"xxxxxxxxxxxxxxx"
+}
+### Response: 
+### Case1:  Response:  Ecompany with all employess belong to Company Success, Return Employee deleted with Status (204 )
+### Case2:  CompanyId Not Existing, Return 404
+### Case3:  Other Bad Reqeust ( Request Body Not Valid )
+
+######################################################################################
