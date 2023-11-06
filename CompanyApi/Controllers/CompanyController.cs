@@ -96,12 +96,24 @@ namespace CompanyApi.Controllers
             {
                 return NotFound();
             }
-            var employees = company.Employees;
-            
-           
-              
+            var employees = company.Employees; 
            return Ok(employees);
             
+        }
+
+        [HttpPut("{companyId}/employees/{employeeId}")]
+        public ActionResult<List<Employee>> GetEmployees(string companyId,string employeeId,[FromBody]Employee updateEmployee)
+        {
+            var company = companies.FirstOrDefault(c => c.Id == companyId);
+            var employee = company.Employees.FirstOrDefault(e => e.Id == employeeId);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            employee.Salary = updateEmployee.Salary;
+            employee.Name = updateEmployee.Name;
+            return Ok(employee);
+
         }
 
 

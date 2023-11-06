@@ -201,13 +201,36 @@ namespace CompanyApiTest
             employees1.Add(employee1);
             employees1.Add(employee2);
 
-            HttpResponseMessage httpResponseMessage2 = await httpClient.PostAsJsonAsync($"api/companies/{company.Id}/employees", employee1);
-            HttpResponseMessage httpResponseMessage3 = await httpClient.PostAsJsonAsync($"api/companies/{company.Id}/employees", employee2);
+            await httpClient.PostAsJsonAsync($"api/companies/{company.Id}/employees", employee1);
+            await httpClient.PostAsJsonAsync($"api/companies/{company.Id}/employees", employee2);
 
-            var httpResponseMessage4 = await httpClient.GetAsync($"api/companies/{company.Id}/employees");
-            var employees2 = await httpResponseMessage4.Content.ReadFromJsonAsync<List<Employee>>();
+            var httpResponseMessage2 = await httpClient.GetAsync($"api/companies/{company.Id}/employees");
+            var employees2 = await httpResponseMessage2.Content.ReadFromJsonAsync<List<Employee>>();
 
             Assert.Equal(employees1.Count, employees2.Count);
+
+        }
+
+        [Fact]
+        public async Task Should_return_employee_when_update_employee_given_company_id_and_update_message()
+        {
+            await ClearDataAsync();
+
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("google");
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
+            var company = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            
+            var employee1 = new Employee("heihei", 12);
+            var httpResponseMessage2 = await httpClient.PostAsJsonAsync($"api/companies/{company.Id}/employees", employee1);
+            var employee2 = await httpResponseMessage2.Content.ReadFromJsonAsync<Employee>();
+
+            var updateEmploee = new Employee("heihei", 19);
+
+            var httpResponseMessage3 = await httpClient.PutAsJsonAsync($"api/companies/{company.Id}/employees/{employee2.Id}", updateEmploee);
+
+            Assert.Equal(HttpStatusCode.OK, httpResponseMessage3.StatusCode);
+            
 
         }
 
