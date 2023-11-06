@@ -109,7 +109,7 @@ namespace CompanyApiTest
 
         [Theory]
         [InlineData("acompany")]
-        public async Task should_return_the_correspond_company_when_get_company_by_id_give_the_company_id(string companyname)
+        public async Task Should_return_the_correspond_company_when_get_company_by_id_give_the_company_id(string companyname)
         {
             //Given
             await ClearDataAsync();          
@@ -129,7 +129,7 @@ namespace CompanyApiTest
 
         [Theory]
         [InlineData("acompany")]
-        public async Task should_get_no_content_when_get_company_by_id_give_not_existed_id(string companyname)
+        public async Task Should_get_no_content_when_get_company_by_id_give_not_existed_id(string companyname)
         {
             //Given
             await ClearDataAsync();
