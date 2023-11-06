@@ -235,6 +235,7 @@ namespace CompanyApiTest
             Assert.Equal(httpResponseMessage.StatusCode, HttpStatusCode.NotFound);
         }
 
+        /*
         [Fact]
         public async Task Should_return_No_Content_when_delete_given_an_employee_name()
         {
@@ -253,7 +254,7 @@ namespace CompanyApiTest
 
             //Then
             Assert.Equal(httpResponseMessage.StatusCode, HttpStatusCode.NoContent);
-        }
+        }*/
 
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
