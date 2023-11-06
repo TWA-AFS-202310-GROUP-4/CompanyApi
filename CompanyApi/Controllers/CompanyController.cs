@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Linq;
 
@@ -58,6 +59,17 @@ namespace CompanyApi.Controllers
             return Ok(companies[index]);
         }
 
+        [HttpPut("{id}")]
+        public ActionResult<Company> UpdateCompanyById(string id, [FromBody] UpdateCompanyRequest updateCompanyRequest)
+        {
+            var index = companies.FindIndex(company => company.Id == id);
+            if (index == -1)
+            {
+                return NoContent();
+            }
+            companies[index].Name= updateCompanyRequest.Name;
+            return Ok(companies[index]);
+        }
 
     }
 }

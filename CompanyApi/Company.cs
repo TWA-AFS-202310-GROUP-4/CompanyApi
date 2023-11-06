@@ -11,5 +11,10 @@
         public string Id { get; set; }
 
         public string Name { get; set; }
+
+        public static implicit operator Company(HttpResponseMessage v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -1,4 +1,5 @@
 using CompanyApi;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
+using System.Xml.Linq;
 
 namespace CompanyApiTest
 {
@@ -181,5 +183,42 @@ namespace CompanyApiTest
             //then
             Assert.Equal(HttpStatusCode.BadRequest,responseMessage.StatusCode);
         }
+
+        [Theory]
+        [InlineData("acompany","a-update company")]
+        public async Task Should_get_updated_company_name_when_update_company_given_existed_company_id(string companyName,string updateCompanyname)
+        {
+            //given
+            await ClearDataAsync();
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest { Name = companyName });
+            Company? company = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+            UpdateCompanyRequest updateCompanyRequest = new UpdateCompanyRequest(company.Id, updateCompanyname);
+
+            //when
+            HttpResponseMessage updateHttpResponseMessage = await httpClient.PutAsJsonAsync($"/api/companies/{company.Id}", updateCompanyRequest);
+            Company? updateCompany = await updateHttpResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            //then
+            Assert.NotNull(updateCompany);
+            Assert.Equal(updateCompanyname, updateCompany.Name);
+        }
+
+        [Theory]
+        [InlineData("acompany","a-update company")]
+        public async Task Should_get_no_content_when_update_company_given_existed_company_id(string companyName, string updateCompanyname)
+        {
+            //given
+            await ClearDataAsync();
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest { Name = companyName });
+            Company? company = await httpResponseMessage.Content.ReadFromJsonAsync<Company>(); UpdateCompanyRequest updateCompanyRequest = new UpdateCompanyRequest(company.Id, updateCompanyname);
+            var fakeId = Guid.NewGuid().ToString();
+
+            //when
+            HttpResponseMessage updateHttpResponseMessage = await httpClient.PutAsJsonAsync($"/api/companies/{fakeId}", updateCompanyRequest);
+
+            //then
+           Assert.Equal(HttpStatusCode.NoContent,updateHttpResponseMessage.StatusCode);
+        }
+
     }
 }
