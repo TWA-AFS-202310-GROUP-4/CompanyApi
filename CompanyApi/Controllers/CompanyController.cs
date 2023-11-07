@@ -45,7 +45,7 @@ namespace CompanyApi.Controllers
 
                 int startIndex = (int)((pageIndex - 1) * pageSize);
                 int companiesToTake = (int)((pageSize < (companies.Count - startIndex)) ? pageSize : companies.Count);
-                List<Company> filterdCompanies = companies.Skip((int)((pages - 1) * pageSize)).Take(companiesToTake).ToList();
+                List<Company> filterdCompanies = companies.Skip((int)((pages - 1) * pageSize)).Take((int)pageSize).ToList();
                 return Ok(filterdCompanies);
             }
             return Ok(companies);
@@ -68,7 +68,7 @@ namespace CompanyApi.Controllers
             var index = companies.FindIndex(company => company.Id == id);
             if (index == -1)
             {
-                return NoContent();
+                return NotFound();
             }
             companies[index].Name= updateCompanyRequest.Name;
             return Ok(companies[index]);
@@ -84,6 +84,11 @@ namespace CompanyApi.Controllers
             }
             string emloyeeName = createEmployeeRequest.Name;
             Employee newEmployee = new (id,emloyeeName);
+
+            if(companies[companyIndex].EmployeesList.Contains(newEmployee))
+            {
+                return BadRequest();
+            }
 
             companies[companyIndex].EmployeesList.Add(newEmployee);
 
