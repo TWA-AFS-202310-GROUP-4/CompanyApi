@@ -39,17 +39,22 @@ namespace CompanyApi.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Company>> GetCompaniesWithPagination([FromQuery] string? pageSize, [FromQuery] string? pageNumber)
+        public ActionResult<List<Company>> GetCompaniesWithPagination([FromQuery] int pageSize, [FromQuery] int pageNumber)
         {
-            int pageSizeInt = Int32.Parse(pageSize);
-            int pageNumberInt = Int32.Parse(pageNumber);
-            int startIndex = pageSizeInt * (pageNumberInt - 1);
-            List<Company> queriedCompanies = new List<Company>();
-            for (int i = startIndex; i < startIndex + pageSizeInt; i++)
+            int startIndex = pageSize * (pageNumber - 1);
+            if (startIndex >= companies.Count) 
             {
+                return BadRequest();
+            }
+            List<Company> queriedCompanies = new List<Company>();
+            for (int i = startIndex; i < startIndex + pageSize; i++)
+            {
+                if (i >= companies.Count)
+                {
+                    break;
+                }
                 queriedCompanies.Add(companies[i]);
             }
-            
             
             return StatusCode(StatusCodes.Status200OK, queriedCompanies);
         }
@@ -70,14 +75,14 @@ namespace CompanyApi.Controllers
            
         }
 
-        [HttpPut("{companyId}")]
+        [HttpPost("{companyId}")]
         public ActionResult<Company> AddEmployeeToACompany([FromRoute] string companyId, Employee newEmployee)
         {
             int index = companies.FindIndex(company => company.Id.Equals(companyId));
             if (index >= 0)
             {
                companies[index].Employees.Add(newEmployee);
-                return StatusCode(StatusCodes.Status204NoContent);
+               return StatusCode(StatusCodes.Status201Created);
             }
             else
             {
@@ -90,31 +95,29 @@ namespace CompanyApi.Controllers
         public ActionResult<Company> DeleteAnEmployeeOfAnCompany([FromRoute] string? companyId, [FromRoute] string? employeeId)
         {
             int companyIndex = companies.FindIndex(company => company.Id.Equals(companyId));
-            if (companyIndex >= 0)
+            if (companyIndex < 0 )
             {
-                var employees = companies[companyIndex].Employees;
-                var employeeIndex = employees.FindIndex(Employee => Employee.Id.Equals(employeeId));
-                if (employeeIndex >= 0)
-                {
-                    employees.RemoveAt(companyIndex);
-                    return StatusCode(StatusCodes.Status204NoContent);
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status404NotFound);
-                }
-                
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
+
+            var employees = companies[companyIndex].Employees;
+            var employeeIndex = employees.FindIndex(Employee => Employee.Id.Equals(employeeId));
+            if (employeeIndex >= 0)
+            {
+                employees.RemoveAt(companyIndex);
+                return StatusCode(StatusCodes.Status204NoContent);
             }
             else
             {
                 return StatusCode(StatusCodes.Status404NotFound);
             }
+   
         }
 
-        [HttpGet("/company/{id}")]
-        public ActionResult<Company> GetEmployeeList(string id)
+        [HttpGet("{companyId}/employees")]
+        public ActionResult<Company> GetEmployeeList(string companyId)
         {
-            var quiredResult = companies.FirstOrDefault(company => company.Id.Equals(id));
+            var quiredResult = companies.FirstOrDefault(company => company.Id.Equals(companyId));
             if (quiredResult != null)
             {
                 return StatusCode(StatusCodes.Status200OK, quiredResult.Employees);
