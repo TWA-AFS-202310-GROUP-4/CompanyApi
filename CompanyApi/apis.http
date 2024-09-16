@@ -59,3 +59,70 @@ Content-Type: application/json; charset=utf-8
 ### Case2: 404 Company NOT Found
 
 ######################################################################################
+
+
+######################################################################################
+
+## AC6 Update employee to a company
+POST https://{{hostname}}:{{port}}/api/companies
+
+Content-Type: application/json; charset=utf-8
+{
+  "employeeName": "Jack"
+  "id" : "123"
+}
+
+### Response: 
+### Case1: Sucess, 201 success added
+
+######################################################################################
+
+######################################################################################
+
+## AC7 delete an employee
+DELETE https://{{hostname}}:{{port}}/api/companies/{companyId}/employee/{employeeId}
+
+### Response: 
+### Case1: Sucess, 204 NoContent
+### Case2: Failed, 404 Not Found
+
+######################################################################################
+
+######################################################################################
+
+## AC8 get All employee of a company
+Get https://{{hostname}}:{{port}}/api/companies/{companyId}
+
+Content-Type: application/json; charset=utf-8
+[{
+  "employeeName": "Jack"
+  "id" : "123"
+}]
+
+### Response: 
+### Case1: Success, 200 with list of employees
+### Case2: Failed, 404 Not Found
+
+######################################################################################
+
+######################################################################################
+
+## AC9 update employee info in a company
+Put https://{{hostname}}:{{port}}/api/companies/{companyId}/employee/{employeeId}
+
+### Response: 
+### Case1: Success with 200
+### Case2: Failed, 404 Not Found
+
+######################################################################################
+
+######################################################################################
+
+## AC10 Delete all employees in a company
+DELETE https://{{hostname}}:{{port}}/api/companies/{companyId}
+
+### Response: 
+### Case1: Success with 204 NoContent
+### Case2: Failed, 404 Not Found
+
+######################################################################################
